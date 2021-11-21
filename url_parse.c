@@ -10,8 +10,8 @@
 #include <errno.h>
 #include "time.h"
 
-//https://ota-api-stage.xchanger.cn
-//http://apis.xchanger.cn/
+//https://xxxxx.cn
+//http://xxxx.cn/
 
 /* 打印宏 */
 #define MSG_DEBUG   0x01
@@ -171,6 +171,6 @@ int url_parse_info(char *url, parse_url_info_s_type *info)
 int main()
 {
     parse_url_info_s_type body = {0};
-    url_parse_info("http://ta.xchanger.cn/upload/:1440", &body);
+    url_parse_info("http://xxxxx/upload/:1440", &body);
     log_printf(MSG_INFO, "host_name:%s, ip is %s, ip_type is %d, port : %d \n", body.host_name, body.ip_str, body.ip_type, body.port);
 }
