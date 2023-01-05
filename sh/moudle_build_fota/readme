@@ -20,3 +20,8 @@ module 自适配平台做包脚本，包括做包.校验等流程。后续待完
 FOTA脚本更新功能:
 1.新增fota包校验: 如果fota包名称非法，则直接退出
 2.新增fota包重命名: 将ota.swu --- 变更为 L-XXXXXX-XXXXX-XXXX_(VXX.XX.XXX--VXX.XX.XXX)_ota.swu， L-XXXXXX-XXXXX-XXXX 见module版本号规则，()括号内的为版本号，说明OTA是某个版本到某个版本
+
+2022/1/6
+FOTA脚本更新功能:
+1.升级log/环境 重定向 module_fota_out/module_build_fota.log
+2.fota名称新增校验 "-target_files" 字符串校验

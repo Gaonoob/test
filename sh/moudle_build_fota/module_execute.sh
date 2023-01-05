@@ -12,18 +12,35 @@
 module_ota_cur_path=$(cd `dirname $0`; pwd)
 module_ota_old_path=${module_ota_cur_path}/module_fota_old
 module_ota_new_path=${module_ota_cur_path}/module_fota_new
+module_ota_log_path=${module_ota_cur_path}/module_fota_out/module_build_fota.log
 
 # 公共方法
 # module_comm_芯片公司_function
 __module_comm_unisoc_udx710_checkOtaName() {
     # 校验name
     unisoc_old_package_name="$(basename "$(ls -1 ${module_ota_old_path}/*.tgz)" .tgz)"
-    echo unisoc_old_package_name:${unisoc_old_package_name}
+    echo unisoc_old_package_name:${unisoc_old_package_name} >> ${module_ota_log_path}
     unisoc_new_package_name="$(basename "$(ls -1 ${module_ota_new_path}/*.tgz)" .tgz)"
-    echo unisoc_new_package_name:${unisoc_new_package_name}
+    echo unisoc_new_package_name:${unisoc_new_package_name} >> ${module_ota_log_path}
+
+    # 校验ota是否正常
+    if [[ ${unisoc_old_package_name:0-13} != "-target_files" ]];then
+        echo "package is Illegal" >> ${module_ota_log_path}
+        exit 0
+    fi
+    
+    if [[ ${unisoc_new_package_name:0-13} != "-target_files" ]];then
+        echo "package is Illegal" >> ${module_ota_log_path}
+        exit 0
+    fi
 
     if [[ ${unisoc_old_package_name:0:20} != ${unisoc_new_package_name:0:20} ]];then
-        echo "package is Illegal"
+        echo "package is illegal" >> ${module_ota_log_path}
+        exit 0
+    fi
+
+    if [[ ${unisoc_new_package_name:21:10} == ${unisoc_old_package_name:21:10} ]];then
+        echo "package is same" >> ${module_ota_log_path}
         exit 0
     fi
 }
@@ -31,13 +48,13 @@ __module_comm_unisoc_udx710_checkOtaName() {
 # FOTA包命名规则
 __module_comm_unisoc_udx710_makeUpOtaName() {
     unisoc_package_name=${unisoc_old_package_name:0:20}"_"${unisoc_old_package_name:21:10}"--"${unisoc_new_package_name:21:10}"_ota.swu"
-    echo unisoc_up_package_name:${unisoc_package_name}
+    echo unisoc_up_ota_name:${unisoc_package_name} >> ${module_ota_log_path}
     mv ${module_ota_cur_path}/module_fota_out/up/ota.swu ${module_ota_cur_path}/module_fota_out/up/${unisoc_package_name}
 }
 
 __module_comm_unisoc_udx710_makeDownOtaName() {
     unisoc_package_name=${unisoc_old_package_name:0:20}"_("${unisoc_new_package_name:21:10}"--"${unisoc_old_package_name:21:10}")_ota.swu"
-    echo unisoc_down_package_name:${unisoc_package_name}
+    echo unisoc_down_ota_name:${unisoc_package_name} >> ${module_ota_log_path}
     mv ${module_ota_cur_path}/module_fota_out/down/ota.swu ${module_ota_cur_path}/module_fota_out/down/${unisoc_package_name}
 }
 
@@ -106,7 +123,7 @@ __module_fota_unisoc_udx710_V510_diff() {
     __module_comm_unisoc_udx710_makeUpOtaName
     __module_comm_unisoc_udx710_makeDownOtaName
 
-    rm -rf ${module_ota_old_tmp}
+    rm -rf ${module_ota_old_tmp_path}
     rm -rf ${module_ota_new_tmp_path}
 }
 
@@ -159,15 +176,12 @@ __module_fota_unisoc_main() {
 
     case $((number)) in
         0) 
-            exit
             ;;
         1)
             __module_fota_unisoc_udx710_V516
-            exit 
             ;;
         2)
             __module_fota_unisoc_udx710_V510
-            exit 
             ;;
         *)
             ;;
@@ -194,18 +208,26 @@ __module_fota_main() {
     echo "other. exit"
     read -p "please inport choice :" number
 
+    echo -e "cur build fota environment:\n""$(env)" > ${module_ota_log_path}
+    echo "-------- build log start --------" >> ${module_ota_log_path}
+    echo "build start time:" $(date +"%Y-%m-%d %H:%M:%S") >> ${module_ota_log_path}
+
     case $((number)) in
         0) 
-             __module_fota_unisoc_main
+            __module_fota_unisoc_main
             ;;
         1)
+            echo "don't support mfr" >> ${module_ota_log_path}
             exit 
             ;;
         *)
             rm -rf ./module_fota_out
-            echo "other. exit"
+            echo "build clean successful" >> ${module_ota_log_path}
             ;;
     esac
+
+    echo "build end time:" $(date +"%Y-%m-%d %H:%M:%S") >> ${module_ota_log_path}
+    echo "build fota successful !!!" >> ${module_ota_log_path}
 }
 
 __module_fota_main
