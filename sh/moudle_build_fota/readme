@@ -1,8 +1,22 @@
-1、把ota解压，放到展锐工程根目录 （目前针对展锐平台）
-2、把新老版本分别放入module_fota_new、 module_fota_old 文件夹
-3、执行脚本: ./module_build_fota.sh
-4、生成在module_fota_out目录: /up/ota.swu down/ota.swu
-5、把ota.swu推到/mnt/data/recovery （注意，不要执行mount -o rw,remount /命令）
-6、在shell里写升级标记: fw_setenv mode boot-recovery
-7、重启系统: reboot
-8、升级完后，检查升级是否成功：fw_printenv recovery_status，返回updatenormalok表示成功，其他错误码详见pdf文档。
+脚本介绍：
+module 自适配平台做包脚本，包括做包.校验等流程。后续待完善。
+
+2022/11/11
+展锐FOTA包流程如下:
+1.把压缩包解压，放到展锐工程根目录
+2.把新老版本分别放入module_fota_new. module_fota_old 文件夹
+3.执行脚本: ./module_build_fota.sh
+4.生成在module_fota_out目录: /up/ota.swu down/ota.swu
+5.把ota.swu推到/mnt/data/recovery （注意，不要执行mount -o rw,remount /命令）
+6.在shell里写升级标记: fw_setenv mode boot-recovery
+7.重启系统: reboot
+8.升级完后，检查升级是否成功：fw_printenv recovery_status，返回updatenormalok表示成功，其他错误码详见展锐pdf文档。
+
+2022/12/12
+展锐FOTA流程更新:
+1.压缩包解压不需要放到展锐工程根目录，服务器任意位置即可。然后改为手动输入工程路径即可
+
+2022/1/5
+FOTA脚本更新功能:
+1.新增fota包校验: 如果fota包名称非法，则直接退出
+2.新增fota包重命名: 将ota.swu --- 变更为 L-XXXXXX-XXXXX-XXXX_(VXX.XX.XXX--VXX.XX.XXX)_ota.swu， L-XXXXXX-XXXXX-XXXX 见module版本号规则，()括号内的为版本号，说明OTA是某个版本到某个版本
