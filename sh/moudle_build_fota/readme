@@ -1,0 +1,8 @@
+1、把ota解压，放到展锐工程根目录 （目前针对展锐平台）
+2、把新老版本分别放入module_fota_new、 module_fota_old 文件夹
+3、执行脚本: ./module_build_fota.sh
+4、生成在module_fota_out目录: /up/ota.swu down/ota.swu
+5、把ota.swu推到/mnt/data/recovery （注意，不要执行mount -o rw,remount /命令）
+6、在shell里写升级标记: fw_setenv mode boot-recovery
+7、重启系统: reboot
+8、升级完后，检查升级是否成功：fw_printenv recovery_status，返回updatenormalok表示成功，其他错误码详见pdf文档。
